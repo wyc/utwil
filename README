@@ -1,0 +1,136 @@
+# utwil: Go Utilities for Twilio
+#
+**utwil is currently under heavy development, so expect breakage.**
+
+Documentation can be found at:
+[https://godoc.org/github.com/wyc/utwil](https://godoc.org/github.com/wyc/utwil)
+
+Made with [gojson](https://github.com/ChimeraCoder/gojson).
+
+## Installation
+In your terminal:
+``` bash
+$ go get github.com/wyc/utwil
+```
+
+In your code:
+``` go
+import "github.com/wyc/utwil"
+```
+
+## Features
+
+##### Make a utwil.Client
+``` go
+client := utwil.New(AccoutSID, AuthToken)
+```
+
+##### Send an SMS
+
+``` go
+// type client.SendSMS func(from, to, msg string) (*utwil.Message, error)
+msg, err := client.SendSMS("+15551231234", "+15553214321", "Hello, world!")
+```
+
+##### Send an MMS
+
+``` go
+// type client.SendMMS func(from, to, msg, mediaURL string) (*utwil.Message, error)
+mediaURL := "http://i.imgur.com/sZPem77.png"
+body := "Hello, world!"
+msg, err := client.SendMMS("+15551231234", "+15553214321", body, mediaURL)
+```
+
+##### Make a Call
+
+``` go
+callbackPostURL := fmt.Sprintf(
+        "http://twimlets.com/forward?PhoneNumber=%s",
+        "+15559871234",
+)
+// type client.Call func(from, to, callbackPostURL string) (*utwil.Call, error)
+call, err := client.Call("+15551231234", "+15553214321", callbackPostURL)
+```
+
+##### Make a Recorded Call
+
+``` go
+// type client.RecordedCall func(from, to, callbackURL string) (*utwil.Call, error)
+call, err := client.RecordedCall("+15551231234", "+15553214321", callbackPostURL)
+```
+
+##### Lookups
+``` go
+// type client.Lookup func(phoneNumber string) (*utwil.Lookup, error)
+lookup, err := client.Lookup("+15551231234")
+// handle err
+fmt.Println(lookup.Carrier.Type) // "mobile", "landline", or "voip"
+```
+
+##### Custom requests
+For more complicated requests, populate the respective XxxxxReq struct
+and call the `client.SubmitXxxxx(XxxxxReq) (*Xxxxx, error)` method:
+``` go
+msgReq := utwil.MessageReq{
+        From:           "+15559871234",
+        To:             "+15551231234",
+        Body:           "Hello, world!",
+        StatusCallback: "https://post.here.com/when/msg/status/changes.twiml",
+}
+msg, err := client.SubmitMessage(msgReq)
+```
+
+##### Query Messages (SMS/MMS)
+
+``` go
+weekAgo := time.Now().Add(-7 * 24 * time.Hour)
+iter := client.Messages(
+                utwil.SentBeforeYMD(weekAgo),
+                utwil.To("+15551231234")).Iter()
+var msg utwil.Message
+for iter.Next(&msg) {
+        // do something with utwil.Message
+}
+if iter.Err() != nil {
+        // handle err
+}
+```
+
+##### Query Calls
+``` go
+iter := client.Calls(
+                utwil.From("+15551231234"),
+                utwil.StartedAfter("2015-04-01")).Iter()
+var call utwil.Call
+for iter.Next(&call) {
+        // do something with utwil.Call
+}
+if iter.Err() != nil {
+        // handle err
+}
+```
+
+## Testing
+First, populate env vars `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`,
+                         `TWILIO_DEFAULT_TO`, `TWILIO_DEFAULT_FROM`.
+Then run `go test` and expect many annoyances to `TWILIO_DEFAULT_TO`:
+- Phone call and second forwarded phone call to the same number
+- One SMS message
+
+Run `go test -test.v` instead if you want more details to the console.
+
+## To do
+- Fetching additional resources from a call/msg such as recording or MMS
+- Tools for responding with TwiML, including changing live call state
+- Better testing harness...maybe we can borrow a testing AccountSID/AuthToken
+  pair and *commit them to the repo* >:)
+- CRUD for managerial records such as accounts, addresses, phone numbers,
+  queues, SIP, etc
+- More comments in src
+- Investigate STUN, TURN, and ICE offerings
+
+Feel free to request features by opening an issue.
+
+## Alternatives
+- https://github.com/sfreiberg/gotwilio (No lookup or call/msg listing)
+- https://bitbucket.org/ckvist/twilio (Has tools for generating TwiML, but no lookup or call/msg listing)
