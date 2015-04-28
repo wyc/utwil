@@ -8,28 +8,28 @@ import (
 )
 
 var (
-	TheAccountSID      = os.Getenv("TWILIO_ACCOUNT_SID")
-	TheAuthToken       = os.Getenv("TWILIO_AUTH_TOKEN")
-	TheToPhoneNumber   = os.Getenv("TWILIO_DEFAULT_TO")
-	TheFromPhoneNumber = os.Getenv("TWILIO_DEFAULT_FROM")
-	TheClient          = New(TheAccountSID, TheAuthToken)
+	AccountSID      = os.Getenv("TWILIO_ACCOUNT_SID")
+	AuthToken       = os.Getenv("TWILIO_AUTH_TOKEN")
+	ToPhoneNumber   = os.Getenv("TWILIO_DEFAULT_TO")
+	FromPhoneNumber = os.Getenv("TWILIO_DEFAULT_FROM")
+	TestClient      = NewClient(AccountSID, AuthToken)
 )
 
 func init() {
-	if TheAccountSID == "" {
+	if AccountSID == "" {
 		log.Fatalf("Testing env var TWILIO_ACCOUNT_SID is unset")
-	} else if TheAuthToken == "" {
+	} else if AuthToken == "" {
 		log.Fatalf("Testing env var TWILIO_AUTH_TOKEN is unset")
-	} else if TheToPhoneNumber == "" {
+	} else if ToPhoneNumber == "" {
 		log.Fatalf("Testing env var TWILIO_DEFAULT_TO is unset")
-	} else if TheFromPhoneNumber == "" {
+	} else if FromPhoneNumber == "" {
 		log.Fatalf("Testing env var TWILIO_DEFAULT_FROM is unset")
 	}
 }
 
 // Iterate (and paginate) through all the calls
 func TestListCalls(t *testing.T) {
-	iter := TheClient.Calls().Iter()
+	iter := TestClient.Calls().Iter()
 	callCount := 0
 	var call Call
 	for iter.Next(&call) {
@@ -41,12 +41,12 @@ func TestListCalls(t *testing.T) {
 	t.Logf("Calls total: %d\n", callCount)
 }
 
-// Iterate (and paginate) through all calls from TheFromPhoneNumber within
+// Iterate (and paginate) through all calls from FromPhoneNumber within
 // one week
 func TestQueryCalls(t *testing.T) {
 	weekAgo := time.Now().Add(-7 * 24 * time.Hour)
-	iter := TheClient.Calls(
-		From(TheFromPhoneNumber),
+	iter := TestClient.Calls(
+		From(FromPhoneNumber),
 		StartedAfterYMD(weekAgo)).Iter()
 	callCount := 0
 	var call Call
@@ -61,7 +61,7 @@ func TestQueryCalls(t *testing.T) {
 
 // Iterate (and paginate) through all the messages
 func TestListMessages(t *testing.T) {
-	iter := TheClient.Messages().Iter()
+	iter := TestClient.Messages().Iter()
 	msgCount := 0
 	var msg Message
 	for iter.Next(&msg) {
@@ -73,12 +73,12 @@ func TestListMessages(t *testing.T) {
 	t.Logf("Messages total: %d\n", msgCount)
 }
 
-// Iterate (and paginate) through all calls from TheFromPhoneNumber within
+// Iterate (and paginate) through all calls from FromPhoneNumber within
 // one week
 func TestQueryMessages(t *testing.T) {
 	weekAgo := time.Now().Add(-7 * 24 * time.Hour)
-	iter := TheClient.Messages(
-		From(TheFromPhoneNumber),
+	iter := TestClient.Messages(
+		From(FromPhoneNumber),
 		SentAfterYMD(weekAgo)).Iter()
 	msgCount := 0
 	var msg Message

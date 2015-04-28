@@ -6,7 +6,7 @@ import (
 )
 
 func TestLookup(t *testing.T) {
-	lookup, err := TheClient.Lookup(TheToPhoneNumber)
+	lookup, err := TestClient.Lookup(ToPhoneNumber)
 	if err != nil {
 		t.Fatalf("Failed: %s", err.Error())
 	}

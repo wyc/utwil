@@ -12,7 +12,7 @@
 //
 // Start with:
 //
-//	client := utwil.New(AccoutSID, AuthToken)
+//	client := utwil.NewClient(AccoutSID, AuthToken)
 //
 // Commonly used actions have convenience functions:
 //

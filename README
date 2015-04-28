@@ -22,20 +22,20 @@ import "github.com/wyc/utwil"
 
 ##### Make a utwil.Client
 ``` go
-client := utwil.New(AccoutSID, AuthToken)
+client := utwil.NewClient(AccoutSID, AuthToken)
 ```
 
 ##### Send an SMS
 
 ``` go
-// type client.SendSMS func(from, to, msg string) (*utwil.Message, error)
+// type client.SendSMS func(from, to, msg string) (utwil.Message, error)
 msg, err := client.SendSMS("+15551231234", "+15553214321", "Hello, world!")
 ```
 
 ##### Send an MMS
 
 ``` go
-// type client.SendMMS func(from, to, msg, mediaURL string) (*utwil.Message, error)
+// type client.SendMMS func(from, to, msg, mediaURL string) (utwil.Message, error)
 mediaURL := "http://i.imgur.com/sZPem77.png"
 body := "Hello, world!"
 msg, err := client.SendMMS("+15551231234", "+15553214321", body, mediaURL)
@@ -48,20 +48,20 @@ callbackPostURL := fmt.Sprintf(
         "http://twimlets.com/forward?PhoneNumber=%s",
         "+15559871234",
 )
-// type client.Call func(from, to, callbackPostURL string) (*utwil.Call, error)
+// type client.Call func(from, to, callbackPostURL string) (utwil.Call, error)
 call, err := client.Call("+15551231234", "+15553214321", callbackPostURL)
 ```
 
 ##### Make a Recorded Call
 
 ``` go
-// type client.RecordedCall func(from, to, callbackURL string) (*utwil.Call, error)
+// type client.RecordedCall func(from, to, callbackURL string) (utwil.Call, error)
 call, err := client.RecordedCall("+15551231234", "+15553214321", callbackPostURL)
 ```
 
 ##### Lookups
 ``` go
-// type client.Lookup func(phoneNumber string) (*utwil.Lookup, error)
+// type client.Lookup func(phoneNumber string) (utwil.Lookup, error)
 lookup, err := client.Lookup("+15551231234")
 // handle err
 fmt.Println(lookup.Carrier.Type) // "mobile", "landline", or "voip"
@@ -69,7 +69,7 @@ fmt.Println(lookup.Carrier.Type) // "mobile", "landline", or "voip"
 
 ##### Custom requests
 For more complicated requests, populate the respective XxxxxReq struct
-and call the `client.SubmitXxxxx(XxxxxReq) (*Xxxxx, error)` method:
+and call the `client.SubmitXxxxx(XxxxxReq) (Xxxxx, error)` method:
 ``` go
 msgReq := utwil.MessageReq{
         From:           "+15559871234",

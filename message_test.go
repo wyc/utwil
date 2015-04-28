@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-// This test sends a test SMS to TheToPhoneNumber
+// This test sends a test SMS to ToPhoneNumber
 func TestSendSMS(t *testing.T) {
-	msg, err := TheClient.SendSMS(TheFromPhoneNumber, TheToPhoneNumber, "Hello, world!")
+	msg, err := TestClient.SendSMS(FromPhoneNumber, ToPhoneNumber, "Hello, world!")
 	if err != nil {
 		t.Fatalf("Failed: %s", err.Error())
 	}

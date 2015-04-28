@@ -22,6 +22,9 @@ type Client struct {
 	AuthToken  string
 }
 
+// NewClient exists as a stable interface to create a new utwil.Client.
+func NewClient(accountSID, authToken string) Client { return Client{accountSID, authToken} }
+
 func (c *Client) getJSON(url string, result interface{}) error {
 	hc := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -54,7 +57,9 @@ func (c *Client) postForm(url string, values url.Values, result interface{}) err
 	if err != nil {
 		return err
 	}
-	if resp.StatusCode != 200 {
+
+	// HTTP 2xx codes are successful, others are errors
+	if resp.StatusCode >= 300 || resp.StatusCode < 200 {
 		err := RESTException{}
 		json.NewDecoder(resp.Body).Decode(&err)
 		return err
