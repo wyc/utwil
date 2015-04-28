@@ -27,7 +27,7 @@ func (c *Client) SubmitLookup(req LookupReq) (*Lookup, error) {
 	if req.CountryCode != "" {
 		values.Add("CountryCode", req.CountryCode)
 	}
-	url := fmt.Sprintf("%s/PhoneNumbers/%s?%s", TheLookupURL, req.PhoneNumber, values.Encode())
+	url := fmt.Sprintf("%s/PhoneNumbers/%s?%s", LookupURL, req.PhoneNumber, values.Encode())
 	res := new(Lookup)
 	err := c.getJSON(url, res)
 	return res, err

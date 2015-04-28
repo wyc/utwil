@@ -63,7 +63,7 @@ type listResource struct {
 }
 
 func (lr listResource) nextPageFullURI() string {
-	return fmt.Sprintf("%s%s", TheBaseURL, *lr.NextPageURI)
+	return fmt.Sprintf("%s%s", BaseURL, *lr.NextPageURI)
 }
 
 func (lr listResource) loadNextPage(c *Client, result iterable) (iterable, error) {

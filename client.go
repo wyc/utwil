@@ -8,11 +8,12 @@ import (
 	"strings"
 )
 
+// At the time of writing, the current API version was released on Apr. 1, 2010
 const (
-	TheBaseURL   = "https://api.twilio.com"
-	TheLookupURL = "https://lookups.twilio.com/v1"
+	BaseURL   = "https://api.twilio.com"
+	LookupURL = "https://lookups.twilio.com/v1"
 
-	TheAPIVersion = "2010-04-01"
+	APIVersion = "2010-04-01"
 )
 
 // Client stores Twilio API credentials
@@ -96,7 +97,7 @@ func (c *Client) postForm(url string, values url.Values, result interface{}) err
 }
 
 func (c *Client) urlPrefix() string {
-	return fmt.Sprintf("%s/%s/Accounts/%s", TheBaseURL, TheAPIVersion, c.accountSID)
+	return fmt.Sprintf("%s/%s/Accounts/%s", BaseURL, APIVersion, c.accountSID)
 }
 
 func (c *Client) callsURL() string {
