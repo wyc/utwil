@@ -178,7 +178,7 @@ func StartedAfter(ymd string) ListQueryConf {
 
 // StartedAfterYMD filters calls started after a given date (YMD considered only)
 func StartedAfterYMD(t time.Time) ListQueryConf {
-	return StartedBefore(t.Format(YMD))
+	return StartedAfter(t.Format(YMD))
 }
 
 // Iter creates an iterator that iterates utwil.Call results

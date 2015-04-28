@@ -120,10 +120,10 @@ Then run `go test` and expect many annoyances to `TWILIO_DEFAULT_TO`:
 Run `go test -test.v` instead if you want more details to the console.
 
 ## To do
-- Fetching additional resources from a call/msg such as recording or MMS
-- Tools for responding with TwiML, including changing live call state
 - Better testing harness...maybe we can borrow a testing AccountSID/AuthToken
   pair and *commit them to the repo* >:)
+- Fetching additional resources from a call/msg such as recording or MMS
+- Tools for responding with TwiML, including changing live call state
 - CRUD for managerial records such as accounts, addresses, phone numbers,
   queues, SIP, etc
 - More comments in src

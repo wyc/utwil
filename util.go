@@ -1,7 +1,6 @@
 package utwil
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -14,15 +13,18 @@ type Time struct {
 	time.Time
 }
 
+// jsonRFC1123Z is the time formatting string for utwil.Time
+const jsonRFC1123Z = `"` + time.RFC1123Z + `"`
+
 // MarshalJSON marshals time.Time into the time.RFC1123Z format
 func (t *Time) MarshalJSON() ([]byte, error) {
-	str := t.Format(fmt.Sprintf(`"%s"`, time.RFC1123Z))
+	str := t.Format(jsonRFC1123Z)
 	return []byte(str), nil
 }
 
 // UnmarshalJSON unmarshals time.Time from the time.RFC1123Z format
 func (t *Time) UnmarshalJSON(data []byte) error {
-	ot, err := time.Parse(fmt.Sprintf(`"%s"`, time.RFC1123Z), string(data))
+	ot, err := time.Parse(jsonRFC1123Z, string(data))
 	if err != nil {
 		return err
 	}
