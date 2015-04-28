@@ -1,8 +1,8 @@
 package utwil
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,86 +18,52 @@ const (
 
 // Client stores Twilio API credentials
 type Client struct {
-	accountSID string
-	authToken  string
-	*http.Client
-}
-
-// New creates a new instance of client, storing the AccountSID and AuthToken.
-//
-// These credentials can be found at:
-//
-//	https://www.twilio.com/user/account/settings
-//
-func New(accountSID, authToken string) *Client {
-	if accountSID == "" {
-		panic("Missing Twilio AccountSID")
-	} else if authToken == "" {
-		panic("Missing Twilio AuthToken")
-	}
-
-	return &Client{
-		accountSID: accountSID,
-		authToken:  authToken,
-		Client:     &http.Client{},
-	}
+	AccountSID string
+	AuthToken  string
 }
 
 func (c *Client) getJSON(url string, result interface{}) error {
+	hc := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("GetJSON(): %s", err)
 	}
-	req.SetBasicAuth(c.accountSID, c.authToken)
-	resp, err := c.Do(req)
+	req.SetBasicAuth(c.AccountSID, c.AuthToken)
+	resp, err := hc.Do(req)
 	if err != nil {
 		return fmt.Errorf("GetJSON(): %s", err)
 	}
 
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("GetJSON(): %s", err)
+	if resp.StatusCode != 200 {
+		re := RESTException{}
+		json.NewDecoder(resp.Body).Decode(&re)
+		return re
 	}
-
-	err = decodeJSON(buf, result)
-	if err != nil {
-		return fmt.Errorf("GetJSON(): %s", err)
-	}
-
-	return nil
+	return json.NewDecoder(resp.Body).Decode(&result)
 }
 
 func (c *Client) postForm(url string, values url.Values, result interface{}) error {
+	hc := &http.Client{}
 	req, err := http.NewRequest("POST", url, strings.NewReader(values.Encode()))
 	if err != nil {
 		return fmt.Errorf("PostForm(): %s", err)
 	}
-	req.SetBasicAuth(c.accountSID, c.authToken)
+	req.SetBasicAuth(c.AccountSID, c.AuthToken)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := c.Client.Do(req)
+	resp, err := hc.Do(req)
 	if err != nil {
 		return err
 	}
-
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("PostForm(): %s", err)
+	if resp.StatusCode != 200 {
+		err := RESTException{}
+		json.NewDecoder(resp.Body).Decode(&err)
+		return err
 	}
-
-	if result == nil {
-		err = checkJSON(buf)
-	} else {
-		err = decodeJSON(buf, result)
-	}
-	if err != nil {
-		return fmt.Errorf("PostForm(): %s", err)
-	}
-
-	return nil
+	return json.NewDecoder(resp.Body).Decode(&result)
 }
 
 func (c *Client) urlPrefix() string {
-	return fmt.Sprintf("%s/%s/Accounts/%s", BaseURL, APIVersion, c.accountSID)
+	return fmt.Sprintf("%s/%s/Accounts/%s", BaseURL, APIVersion, c.AccountSID)
 }
 
 func (c *Client) callsURL() string {

@@ -66,7 +66,7 @@ type CallReq struct {
 	Record               bool
 }
 
-// Submit sends a call request populating form fields only if they contain
+// SubmitCall sends a call request populating form fields only if they contain
 // a non-zero value.
 func (c *Client) SubmitCall(req CallReq) (*Call, error) {
 	// @TODO wait until github.com/gorilla/schema supports struct-to-url.Values
@@ -106,7 +106,7 @@ func (c *Client) SubmitCall(req CallReq) (*Call, error) {
 	if req.Record {
 		values.Set("Record", "true")
 	}
-	call := new(Call)
+	call := &Call{}
 	err := c.postForm(fmt.Sprintf("%s/Calls.json", c.urlPrefix()), values, call)
 	return call, err
 }
@@ -185,7 +185,7 @@ func StartedAfterYMD(t time.Time) ListQueryConf {
 func (q *CallListQuery) Iter() *CallIter {
 	initURI := fmt.Sprintf("%s?%s", q.callsURL(), q.Values.Encode())
 	iter := &CallIter{iter: newIter(q.Client, initURI)}
-	iter.iterable = new(callList)
+	iter.iterable = &callList{}
 	return iter
 }
 
@@ -197,5 +197,5 @@ type callList struct {
 func (cl callList) item(idx int) interface{} { return cl.Calls[idx] }
 func (cl callList) size() int                { return len(cl.Calls) }
 func (cl callList) nextPage(c *Client) (iterable, error) {
-	return cl.loadNextPage(c, new(callList))
+	return cl.loadNextPage(c, &callList{})
 }

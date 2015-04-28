@@ -16,9 +16,9 @@ type LookupReq struct {
 	CountryCode string
 }
 
-// Submit sends a lookup request populating form fields only if they
+// SubmitLookup sends a lookup request populating form fields only if they
 // contain a non-zero value.
-func (c *Client) SubmitLookup(req LookupReq) (*Lookup, error) {
+func (c *Client) SubmitLookup(req LookupReq) (Lookup, error) {
 	// @TODO wait until github.com/gorilla/schema supports struct-to-url.Values
 	values := url.Values{}
 	if req.Type != "" {
@@ -28,8 +28,8 @@ func (c *Client) SubmitLookup(req LookupReq) (*Lookup, error) {
 		values.Add("CountryCode", req.CountryCode)
 	}
 	url := fmt.Sprintf("%s/PhoneNumbers/%s?%s", LookupURL, req.PhoneNumber, values.Encode())
-	res := new(Lookup)
-	err := c.getJSON(url, res)
+	res := Lookup{}
+	err := c.getJSON(url, &res)
 	return res, err
 }
 
@@ -61,7 +61,7 @@ type Lookup struct {
 //      // handle err
 //      fmt.Println(lookup.Carrier.Type) // "mobile", "landline", or "voip"
 //
-func (c *Client) Lookup(phoneNumber string) (*Lookup, error) {
+func (c *Client) Lookup(phoneNumber string) (Lookup, error) {
 	req := LookupReq{
 		PhoneNumber: phoneNumber,
 		Type:        "carrier",
@@ -70,7 +70,7 @@ func (c *Client) Lookup(phoneNumber string) (*Lookup, error) {
 }
 
 // LookupNoCarrier looks up a phone number's details without the carrier
-func (c *Client) LookupNoCarrier(phoneNumber string) (*Lookup, error) {
+func (c *Client) LookupNoCarrier(phoneNumber string) (Lookup, error) {
 	req := LookupReq{PhoneNumber: phoneNumber}
 	return c.SubmitLookup(req)
 }

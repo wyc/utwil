@@ -51,9 +51,9 @@ type MessageReq struct {
 	ApplicationSID string
 }
 
-// Submit sends a message request populating form fields only if they contain
+// SubmitMessage sends a message request populating form fields only if they contain
 // a non-zero value.
-func (c *Client) SubmitMessage(req MessageReq) (*Message, error) {
+func (c *Client) SubmitMessage(req MessageReq) (Message, error) {
 	// @TODO wait until github.com/gorilla/schema supports struct-to-url.Values
 	values := url.Values{}
 	values.Set("From", req.From)
@@ -68,8 +68,8 @@ func (c *Client) SubmitMessage(req MessageReq) (*Message, error) {
 	if req.ApplicationSID != "" {
 		values.Set("ApplicationSid", req.ApplicationSID)
 	}
-	msg := new(Message)
-	err := c.postForm(fmt.Sprintf("%s/Messages.json", c.urlPrefix()), values, msg)
+	var msg Message
+	err := c.postForm(fmt.Sprintf("%s/Messages.json", c.urlPrefix()), values, &msg)
 	return msg, err
 }
 
@@ -79,7 +79,7 @@ func (c *Client) SubmitMessage(req MessageReq) (*Message, error) {
 //
 //	msg, err := client.SendSMS("+15551231234", "+15553214321", "Hello, world!")
 //
-func (c *Client) SendSMS(from, to, body string) (*Message, error) {
+func (c *Client) SendSMS(from, to, body string) (Message, error) {
 	return c.SendMMS(from, to, body, "")
 }
 
@@ -91,7 +91,7 @@ func (c *Client) SendSMS(from, to, body string) (*Message, error) {
 //      body := "Hello, world!"
 //      msg, err := client.SendMMS("+15551231234", "+15553214321", body, mediaURL)
 //
-func (c *Client) SendMMS(from, to, body, mediaURL string) (*Message, error) {
+func (c *Client) SendMMS(from, to, body, mediaURL string) (Message, error) {
 	req := MessageReq{
 		From:     from,
 		To:       to,
@@ -140,7 +140,7 @@ func SentAfterYMD(t time.Time) ListQueryConf {
 func (q *MessageListQuery) Iter() *MessageIter {
 	initURI := fmt.Sprintf("%s?%s", q.messagesURL(), q.Values.Encode())
 	iter := &MessageIter{iter: newIter(q.Client, initURI)}
-	iter.iterable = new(messageList)
+	iter.iterable = messageList{}
 	return iter
 }
 
@@ -149,8 +149,14 @@ type messageList struct {
 	listResource
 }
 
-func (ml messageList) item(idx int) interface{} { return ml.Messages[idx] }
-func (ml messageList) size() int                { return len(ml.Messages) }
+func (ml messageList) item(idx int) interface{} {
+	return ml.Messages[idx]
+}
+
+func (ml messageList) size() int {
+	return len(ml.Messages)
+}
+
 func (ml messageList) nextPage(c *Client) (iterable, error) {
-	return ml.loadNextPage(c, new(messageList))
+	return ml.loadNextPage(c, &messageList{})
 }

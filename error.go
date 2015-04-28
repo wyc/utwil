@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-// The Go-represntation of the Twilio REST API's REST Exception
+// RESTException represents an error returned by the Twilio API
 //
 // Details:
 //
@@ -21,7 +21,7 @@ type RESTException struct {
 // Check the returned JSON for a utwil.RESTException, and return that as an
 // error if so.
 func checkJSON(buf []byte) error {
-	re := new(RESTException)
+	re := &RESTException{}
 	err := json.Unmarshal(buf, re)
 	if err != nil {
 		return err
