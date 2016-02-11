@@ -20,19 +20,21 @@ const (
 type Client struct {
 	AccountSID string
 	AuthToken  string
+	HTTPClient *http.Client
 }
 
 // NewClient exists as a stable interface to create a new utwil.Client.
-func NewClient(accountSID, authToken string) Client { return Client{accountSID, authToken} }
+func NewClient(accountSID, authToken string) Client {
+	return Client{accountSID, authToken, &http.Client{}}
+}
 
 func (c *Client) getJSON(url string, result interface{}) error {
-	hc := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("GetJSON(): %s", err)
 	}
 	req.SetBasicAuth(c.AccountSID, c.AuthToken)
-	resp, err := hc.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("GetJSON(): %s", err)
 	}
@@ -46,14 +48,13 @@ func (c *Client) getJSON(url string, result interface{}) error {
 }
 
 func (c *Client) postForm(url string, values url.Values, result interface{}) error {
-	hc := &http.Client{}
 	req, err := http.NewRequest("POST", url, strings.NewReader(values.Encode()))
 	if err != nil {
 		return fmt.Errorf("PostForm(): %s", err)
 	}
 	req.SetBasicAuth(c.AccountSID, c.AuthToken)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := hc.Do(req)
+	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
